@@ -1,0 +1,311 @@
+import { useState, useRef } from 'react';
+import { toPng } from 'html-to-image';
+
+// Dados super limpos, apenas com as armas (sem cores de ícone)
+const r6Data = {
+  "Ash": { weapons: ["R4-C", "G36C"] }, 
+  "Sledge": { weapons: ["L85A2", "M590A1"] },
+  "Jäger": { weapons: ["416-C Carbine", "M870"] },
+  "Smoke": { weapons: ["FMG-9", "M590A1"] }
+};
+
+const operatorsList = Object.keys(r6Data);
+
+const r6HudColors = [
+  { name: "Azul (Aliado)", hex: "#145c9e" },
+  { name: "Laranja (Oponente)", hex: "#d97316" },
+  { name: "Vermelho (Inimigo)", hex: "#b82d3e" },
+  { name: "Ciano", hex: "#0891b2" },
+  { name: "Amarelo", hex: "#ca8a04" },
+  { name: "Verde", hex: "#16a34a" },
+  { name: "Roxo", hex: "#7e22ce" }
+];
+
+const WeaponIcon = () => (
+  <svg width="42" height="14" viewBox="0 0 120 40" style={{ fill: '#FFFFFF', filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.8))' }}>
+    <path d="M5,15 h30 l5,-5 h10 l5,5 h40 l15,-5 v20 l-15,5 h-40 l-5,-5 h-10 l-5,5 h-30 Z" />
+    <path d="M40,5 v10 M80,5 v10" stroke="#FFFFFF" strokeWidth="2"/>
+    <rect x="100" y="5" width="20" height="30" fill="#FFFFFF"/>
+  </svg>
+);
+
+const HeadshotIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" style={{ fill: 'none', stroke: '#FFFFFF', strokeWidth: '2.5', filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.8))' }}>
+    <circle cx="12" cy="12" r="9.5" />
+    <circle cx="12" cy="12" r="3.5" />
+    <path d="M12,2 v20 M2,12 h20" />
+  </svg>
+);
+
+function App() {
+  
+  const [operatorKiller, setOperatorKiller] = useState(operatorsList[0]);
+  const [operatorVictim, setOperatorVictim] = useState(operatorsList[1]); 
+  
+  const [weapon, setWeapon] = useState(r6Data[operatorsList[0]].weapons[0]);
+  const [isHeadshot, setIsHeadshot] = useState(true);
+  const [killerNick, setKillerNick] = useState("ivoocks"); 
+  const [victimNick, setVictimNick] = useState("Spoit.SR");
+
+  const [colorKiller, setColorKiller] = useState(r6HudColors[0].hex); 
+  const [colorVictim, setColorVictim] = useState(r6HudColors[2].hex); 
+
+  const killFeedRef = useRef(null);
+
+  const handleOperatorKillerChange = (e) => {
+    const novoOperador = e.target.value;
+    setOperatorKiller(novoOperador);
+    setWeapon(r6Data[novoOperador].weapons[0]); 
+  };
+
+  const handleOperatorVictimChange = (e) => {
+    setOperatorVictim(e.target.value);
+  };
+
+  const handleDownload = async () => {
+    if (killFeedRef.current === null) return;
+    
+    try {
+      const node = killFeedRef.current;
+      
+      const dataUrl = await toPng(node, { 
+        cacheBust: true,
+        backgroundColor: 'transparent',
+        pixelRatio: 2, // Mantém a alta qualidade
+        // INJEÇÃO DE LIMITES: Força a exportação a ter o tamanho EXATO da pré-visualização
+        width: node.offsetWidth,
+        height: node.offsetHeight,
+        style: {
+          transform: 'scale(1)', // Evita bugs se estiveres com zoom no navegador
+          transformOrigin: 'top left',
+          margin: 0
+        }
+      });
+      
+      const link = document.createElement('a');
+      link.download = `killfeed-${killerNick}-vs-${victimNick}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Erro ao gerar a imagem:', err);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-neutral-950 text-white flex flex-col items-center py-10 font-sans">
+      <h1 className="text-4xl font-bold mb-10 text-gray-200">Gerador de Kill Feed R6</h1>
+      
+      <div className="flex flex-col xl:flex-row gap-8 w-full max-w-7xl px-4">
+        
+        {/* Painel de Controlos */}
+        <div className="bg-neutral-900 p-8 rounded-xl shadow-2xl w-full xl:w-2/5 flex flex-col gap-5 border border-white/5">
+          <h2 className="text-2xl font-semibold mb-3 border-b border-neutral-700 pb-3 text-gray-400">Controlos</h2>
+          
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label className="block text-sm text-gray-400 mb-1.5 font-medium">Nick Atirador</label>
+              <input type="text" value={killerNick} onChange={(e) => setKillerNick(e.target.value)} className="w-full bg-neutral-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-neutral-700" />
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm text-gray-400 mb-1.5 font-medium">Nick Vítima</label>
+              <input type="text" value={victimNick} onChange={(e) => setVictimNick(e.target.value)} className="w-full bg-neutral-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 border border-neutral-700" />
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label className="block text-sm text-gray-400 mb-1.5 font-medium">Operador Atirador</label>
+              <select value={operatorKiller} onChange={handleOperatorKillerChange} className="w-full bg-neutral-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-neutral-700 mb-4">
+                {operatorsList.map(op => <option key={op} value={op}>{op}</option>)}
+              </select>
+              
+              <label className="block text-sm text-gray-400 mb-1.5 font-medium">Operador Vítima</label>
+              <select value={operatorVictim} onChange={handleOperatorVictimChange} className="w-full bg-neutral-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 border border-neutral-700">
+                {operatorsList.map(op => <option key={op} value={op}>{op}</option>)}
+              </select>
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm text-gray-400 mb-1.5 font-medium">Arma Utilizada</label>
+              <select value={weapon} onChange={(e) => setWeapon(e.target.value)} className="w-full bg-neutral-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-neutral-700">
+                {r6Data[operatorKiller].weapons.map(w => <option key={w} value={w}>{w}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <label className="flex items-center gap-3 cursor-pointer mt-1 p-2 bg-neutral-800 rounded-lg border border-neutral-700">
+            <input type="checkbox" checked={isHeadshot} onChange={(e) => setIsHeadshot(e.target.checked)} className="w-6 h-6 accent-red-500 rounded border-gray-600 focus:ring-red-500 focus:ring-2 bg-neutral-700" />
+            <span className="text-lg font-medium">Eliminação por Headshot?</span>
+          </label>
+
+          {/* Seletores de Cor Oficiais */}
+          <div className="border-t border-neutral-700 pt-5 mt-3">
+            <h3 className="text-lg font-semibold mb-3 text-gray-400">Cores da Equipa (Oficiais R6)</h3>
+            <div className="flex flex-col gap-4">
+              <div>
+                <span className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2 block">Cor do Atirador</span>
+                <div className="flex gap-2">
+                  {r6HudColors.map((color) => (
+                    <button key={`killer-${color.hex}`} onClick={() => setColorKiller(color.hex)} title={color.name} className={`w-8 h-8 rounded-full transition-transform ${colorKiller === color.hex ? 'scale-125 ring-2 ring-white ring-offset-2 ring-offset-neutral-900' : 'hover:scale-110 opacity-70'}`} style={{ backgroundColor: color.hex }} />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <span className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2 block">Cor da Vítima</span>
+                <div className="flex gap-2">
+                  {r6HudColors.map((color) => (
+                    <button key={`victim-${color.hex}`} onClick={() => setColorVictim(color.hex)} title={color.name} className={`w-8 h-8 rounded-full transition-transform ${colorVictim === color.hex ? 'scale-125 ring-2 ring-white ring-offset-2 ring-offset-neutral-900' : 'hover:scale-110 opacity-70'}`} style={{ backgroundColor: color.hex }} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Lado Direito: Pré-visualização */}
+        <div className="flex flex-col gap-5 w-full xl:w-3/5">
+          <h2 className="text-2xl font-semibold text-gray-300">Pré-visualização (Fundo Transparente)</h2>
+          
+          <div className="bg-neutral-900 py-10 px-4 rounded-xl flex items-center relative overflow-x-auto h-[300px] border border-white/5" 
+               style={{ backgroundImage: 'repeating-linear-gradient(45deg, #171717 25%, transparent 25%, transparent 75%, #171717 75%, #171717), repeating-linear-gradient(45deg, #171717 25%, #0a0a0a 25%, #0a0a0a 75%, #171717 75%, #171717)', backgroundPosition: '0 0, 10px 10px', backgroundSize: '20px 20px' }}>
+            
+            <div className="mx-auto w-max">
+              
+              <div 
+                ref={killFeedRef} 
+                style={{ 
+                  display: 'flex', 
+                  flexDirection: 'row', 
+                  alignItems: 'center', /* Centra a barra de 30px verticalmente dentro dos 44px */
+                  height: '44px',       /* ALTURA DA IMAGEM FINAL EXPORTADA */
+                  width: 'max-content',
+                  backgroundColor: 'transparent', /* Fundo transparente para o recorte dos ícones funcionar */
+                  whiteSpace: 'nowrap',
+                  fontFamily: 'Scout, sans-serif', 
+                  fontWeight: 'normal',
+                  color: '#FFFFFF', 
+                  letterSpacing: '0.7px' 
+                }}
+              >
+                {/* ZONA 1: Ícone do Operador Atirador (Altura e Largura: 44px) */}
+                <div style={{ 
+                  width: '44px', 
+                  height: '44px', 
+                  flexShrink: 0, 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  paddingRight: '0px' /* Dá espaço entre o ícone e a barra colorida */
+                }}>
+                  <img 
+                    src={`/icons/${operatorKiller.toLowerCase()}.png`} 
+                    alt={operatorKiller}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain'}}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerText = operatorKiller.substring(0,2).toUpperCase();
+                      e.target.parentElement.style.backgroundColor = '#1f1f1f';
+                      e.target.parentElement.style.fontSize = '12px';
+                      e.target.parentElement.style.fontFamily = 'sans-serif';
+                      e.target.parentElement.style.border = '1px solid rgba(255,255,255,0.1)';
+                      e.target.parentElement.style.borderRadius = '2px';
+                    }}
+                  />
+                </div>
+
+                {/* ========================================= */}
+                {/* INÍCIO DA BARRA CENTRAL (Fina com 30px)     */}
+                {/* ========================================= */}
+                <div className="shadow-lg" style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  height: '30px', 
+                  backgroundColor: 'rgba(15, 15, 15, 0.90)',
+                  overflow: 'hidden' /* Corta os gradientes para não saírem da barra */
+                }}>
+                  
+                  {/* ZONA 2: Nick Atirador */}
+                  <div 
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      height: '100%', 
+                      padding: '0 24px 0 8px', 
+                      background: `linear-gradient(to right, ${colorKiller}e6 0%, ${colorKiller}a6 50%, transparent 100%)` 
+                    }}
+                  >
+                    <span style={{ fontSize: '26px', paddingTop: '1px'}}>
+                      {killerNick}
+                    </span>
+                  </div>
+                  
+                  {/* ZONA 3: Centro Escuro (Arma e Headshot Brancos) */}
+                  <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px', padding: '0 4px', height: '100%' }}>
+                    <WeaponIcon />
+                    {isHeadshot && <HeadshotIcon />}
+                  </div>
+
+                  {/* ZONA 4: Nick Vítima */}
+                  <div 
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      height: '100%', 
+                      padding: '0 8px 0 24px', 
+                      background: `linear-gradient(to left, ${colorVictim}e6 0%, ${colorVictim}a6 50%, transparent 100%)` 
+                    }}
+                  >
+                    <span style={{ fontSize: '26px', paddingTop: '1px' }}>
+                      {victimNick}
+                    </span>
+                  </div>
+
+                </div>
+                {/* ========================================= */}
+                {/* FIM DA BARRA CENTRAL                        */}
+                {/* ========================================= */}
+
+                {/* ZONA 5: Ícone da Vítima (Altura e Largura: 44px) */}
+                <div style={{ 
+                  width: '44px', 
+                  height: '44px', 
+                  flexShrink: 0, 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  paddingLeft: '0px', /* Dá espaço entre a barra e o ícone */
+                  opacity: 0.9
+                }}>
+                  <img 
+                    src={`/icons/${operatorVictim.toLowerCase()}.png`} 
+                    alt={operatorVictim}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain'}}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerText = operatorVictim.substring(0,2).toUpperCase();
+                      e.target.parentElement.style.backgroundColor = '#1f1f1f';
+                      e.target.parentElement.style.fontSize = '12px';
+                      e.target.parentElement.style.fontFamily = 'sans-serif';
+                      e.target.parentElement.style.border = '1px solid rgba(255,255,255,0.1)';
+                      e.target.parentElement.style.borderRadius = '2px';
+                    }}
+                  />
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <button onClick={handleDownload} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-6 rounded-xl transition-all flex justify-center items-center gap-3 mt-4 shadow-lg text-lg transform hover:scale-[1.01]">
+            Baixar Kill Feed PNG
+          </button>
+        </div>
+
+      </div>
+    </div>
+  )
+}
+
+export default App;

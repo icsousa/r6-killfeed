@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Scout';
+  src: url('/Scout-Regular.otf') format('truetype');
+}
