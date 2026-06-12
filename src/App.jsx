@@ -299,7 +299,7 @@ function App() {
                       alignItems: 'center', 
                       height: '100%', 
                       padding: '0 24px 0 8px', 
-                      background: `linear-gradient(to right, ${colorKiller}e6 0%, ${colorKiller}a6 50%, transparent 100%)` 
+                      background: `linear-gradient(to right, ${colorKiller}e6 0%, ${colorKiller}e6 calc(100% - 64px), transparent calc(100% - 24px))` 
                     }}
                   >
                     <span style={{ fontSize: '26px', paddingTop: '1px'}}>
@@ -320,7 +320,7 @@ function App() {
                       alignItems: 'center', 
                       height: '100%', 
                       padding: '0 8px 0 24px', 
-                      background: `linear-gradient(to left, ${colorVictim}e6 0%, ${colorVictim}a6 50%, transparent 100%)` 
+                      background: `linear-gradient(to left, ${colorVictim}e6 0%, ${colorVictim}e6 calc(100% - 64px), transparent calc(100% - 24px))` 
                     }}
                   >
                     <span style={{ fontSize: '26px', paddingTop: '1px' }}>
