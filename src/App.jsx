@@ -90,7 +90,7 @@ const r6HudColors = [
 ];
 
 const WeaponIcon = () => (
-  <svg width="42" height="14" viewBox="0 0 120 40" style={{ fill: '#FFFFFF', filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.8))' }}>
+  <svg width="42" height="14" viewBox="0 0 120 40" style={{ fill: '#FFFFFF' }}>
     <path d="M5,15 h30 l5,-5 h10 l5,5 h40 l15,-5 v20 l-15,5 h-40 l-5,-5 h-10 l-5,5 h-30 Z" />
     <path d="M40,5 v10 M80,5 v10" stroke="#FFFFFF" strokeWidth="2"/>
     <rect x="100" y="5" width="20" height="30" fill="#FFFFFF"/>
@@ -98,7 +98,7 @@ const WeaponIcon = () => (
 );
 
 const HeadshotIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" style={{ fill: 'none', stroke: '#FFFFFF', strokeWidth: '2.5', filter: 'drop-shadow(1px 1px 1px rgba(0,0,0,0.8))' }}>
+  <svg width="18" height="18" viewBox="0 0 24 24" style={{ fill: 'none', stroke: '#FFFFFF', strokeWidth: '2.5' }}>
     <circle cx="12" cy="12" r="9.5" />
     <circle cx="12" cy="12" r="3.5" />
     <path d="M12,2 v20 M2,12 h20" />
@@ -308,7 +308,7 @@ function App() {
                   </div>
                   
                   {/* ZONA 3: Centro Escuro (Arma e Headshot Brancos) */}
-                  <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px', padding: '0 4px', height: '100%' }}>
+                  <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px', padding: '0 1px', height: '100%' }}>
                     <WeaponIcon />
                     {isHeadshot && <HeadshotIcon />}
                   </div>
