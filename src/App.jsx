@@ -232,22 +232,23 @@ function App() {
               autoFocus
             />
             
-            {/* GRELHA DO MODAL (Caixas Maiores e Mais Espaçosas) */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 overflow-y-auto pr-2 pb-2 custom-scrollbar">
+            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-4 overflow-y-auto pr-2 pb-2">
               {filteredOperators.map(op => (
                 <button 
                   key={op} 
                   onClick={() => handleSelectOperator(op)} 
-                  /* Aumentei o padding para p-8 (muito mais espaço interno) e a distância (gap-5) */
-                  className="flex flex-col items-center justify-center gap-5 p-8 bg-black/30 border border-neutral-800 hover:border-yellow-500 hover:bg-black/60 rounded-none transition-all group h-full"
+                  className="flex flex-col items-center gap-3 p-3 bg-black/30 border border-neutral-800 hover:border-yellow-500/50 hover:bg-black/60 rounded-none transition-all group"
                 >
-                  <UIOperator 
-                    name={op} 
-                    /* Ícones agora com 128x128 pixels nos ecrãs normais (md:w-32 md:h-32) */
-                    className="w-24 h-24 md:w-32 md:h-32 group-hover:scale-110 transition-transform" 
-                    textFallbackClass="text-4xl"
+                  <img 
+                    src={`/icons/operators/${op.toLowerCase()}.png`} 
+                    alt={op} 
+                    className="w-12 h-12 object-contain group-hover:scale-110 transition-transform drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]" 
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = `<div class="w-12 h-12 flex items-center justify-center bg-neutral-800 text-neutral-400 font-bold text-lg">${op.substring(0,2).toUpperCase()}</div><span class="text-[10px] uppercase tracking-wider text-neutral-400 font-bold text-center mt-3">${op}</span>`;
+                    }}
                   />
-                  <span className="text-sm md:text-base uppercase tracking-wider text-neutral-400 font-bold group-hover:text-yellow-400 text-center">
+                  <span className="text-[10px] uppercase tracking-wider text-neutral-400 font-bold group-hover:text-yellow-400 text-center">
                     {op}
                   </span>
                 </button>
@@ -269,7 +270,7 @@ function App() {
           Kill Feed
         </h1>
         <p className="text-neutral-500 uppercase tracking-[0.3em] text-sm mt-2 font-bold">
-          Generator / Broadcast Tool
+          Generator
         </p>
       </div>
       
