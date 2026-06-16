@@ -1,7 +1,7 @@
+import './index.css'
 import { useState, useRef, useEffect } from 'react';
 import { toPng } from 'html-to-image';
 
-// Dados super limpos, apenas com as armas (sem cores de ícone)
 const r6Data = {
   "Ace": { weapons: ["AK-12", "M1014", "P9"] },
   "Amaru": { weapons: ["G8A1", "Supernova", "ITA12S", "SMG-11"] },
@@ -39,7 +39,6 @@ const r6Data = {
   "Ying": { weapons: ["T-95 LSW", "SIX12", "Q-929"] },
   "Zero": { weapons: ["SC3000K", "MP7", "5.7 USG", "Gonne-6"] },
   "Zofia": { weapons: ["LMG-E", "M762", "RG15"] },
-  //
   "Alibi": { weapons: ["Mx4 Storm", "ACS12", "Keratos .357", "Bailiff 410"] },
   "Aruni": { weapons: ["P10 RONI", "Mk 14 EBR", "PRB92"] },
   "Azami": { weapons: ["9x19VSN", "ACS12", "D-50"] },
@@ -80,13 +79,13 @@ const r6Data = {
 const operatorsList = Object.keys(r6Data);
 
 const r6HudColors = [
-  { name: "Azul (Aliado)", hex: "#145c9e" },
-  { name: "Laranja (Oponente)", hex: "#d97316" },
-  { name: "Vermelho (Inimigo)", hex: "#b82d3e" },
-  { name: "Ciano", hex: "#0891b2" },
-  { name: "Amarelo", hex: "#ca8a04" },
-  { name: "Verde", hex: "#16a34a" },
-  { name: "Roxo", hex: "#7e22ce" }
+  { name: "Blue (Ally)", hex: "#145c9e" },
+  { name: "Orange (Opponent)", hex: "#d97316" },
+  { name: "Red (Enemy)", hex: "#b82d3e" },
+  { name: "Cyan", hex: "#0891b2" },
+  { name: "Yellow", hex: "#ca8a04" },
+  { name: "Green", hex: "#16a34a" },
+  { name: "Purple", hex: "#7e22ce" }
 ];
 
 const WeaponIconFallback = () => (
@@ -97,21 +96,17 @@ const WeaponIconFallback = () => (
   </svg>
 );
 
-// 2. Criamos o componente Inteligente que tenta carregar o PNG
 const WeaponDisplay = ({ weapon }) => {
   const [hasError, setHasError] = useState(false);
 
-  // Reinicia o estado de erro sempre que mudas de arma no menu
   useEffect(() => {
     setHasError(false);
   }, [weapon]);
 
-  // Se não encontrar o PNG, mostra o desenho branco (Plano B)
   if (hasError) {
     return <WeaponIconFallback />;
   }
 
-  // Tenta carregar a imagem da pasta. Atenção: o nome do teu ficheiro tem de estar em minúsculas (ex: "supernova.png")
   return (
     <img 
       src={`/icons/weapons/${weapon.toLowerCase()}.png`} 
@@ -147,16 +142,30 @@ function App() {
   const [colorKiller, setColorKiller] = useState(r6HudColors[0].hex); 
   const [colorVictim, setColorVictim] = useState(r6HudColors[2].hex); 
 
+  // Estado para controlar o Modal de Operadores
+  const [activeModal, setActiveModal] = useState(null); // 'killer' | 'victim' | null
+  const [searchQuery, setSearchQuery] = useState("");
+
   const killFeedRef = useRef(null);
 
-  const handleOperatorKillerChange = (e) => {
-    const novoOperador = e.target.value;
-    setOperatorKiller(novoOperador);
-    setWeapon(r6Data[novoOperador].weapons[0]); 
+  // Filtra os operadores baseado na pesquisa
+  const filteredOperators = operatorsList.filter(op => 
+    op.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleSelectOperator = (op) => {
+    if (activeModal === 'killer') {
+      setOperatorKiller(op);
+      setWeapon(r6Data[op].weapons[0]); 
+    } else if (activeModal === 'victim') {
+      setOperatorVictim(op);
+    }
+    closeModal();
   };
 
-  const handleOperatorVictimChange = (e) => {
-    setOperatorVictim(e.target.value);
+  const closeModal = () => {
+    setActiveModal(null);
+    setSearchQuery("");
   };
 
   const handleDownload = async () => {
@@ -168,12 +177,11 @@ function App() {
       const dataUrl = await toPng(node, { 
         cacheBust: true,
         backgroundColor: 'transparent',
-        pixelRatio: 2, // Mantém a alta qualidade
-        // INJEÇÃO DE LIMITES: Força a exportação a ter o tamanho EXATO da pré-visualização
+        pixelRatio: 2, 
         width: node.offsetWidth,
         height: node.offsetHeight,
         style: {
-          transform: 'scale(1)', // Evita bugs se estiveres com zoom no navegador
+          transform: 'scale(1)', 
           transformOrigin: 'top left',
           margin: 0
         }
@@ -184,73 +192,209 @@ function App() {
       link.href = dataUrl;
       link.click();
     } catch (err) {
-      console.error('Erro ao gerar a imagem:', err);
+      console.error('Error generating image:', err);
     }
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white flex flex-col items-center py-10 font-sans">
-      <h1 className="text-4xl font-bold mb-10 text-gray-200">Gerador de Kill Feed R6</h1>
+    <div className="min-h-screen bg-neutral-950 text-neutral-200 flex flex-col items-center py-12 font-sans selection:bg-yellow-500 selection:text-black">
       
-      <div className="flex flex-col xl:flex-row gap-8 w-full max-w-7xl px-4">
+      {/* ========================================= */}
+      {/* MODAL DE SELEÇÃO DE OPERADORES              */}
+      {/* ========================================= */}
+      {activeModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-all"
+          onClick={closeModal}
+        >
+          <div 
+            className="bg-neutral-900 border-2 border-neutral-700/80 p-6 w-full max-w-3xl max-h-[85vh] flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.8)]"
+            onClick={e => e.stopPropagation()} // Impede que o clique dentro da janela a feche
+          >
+            <div className="flex justify-between items-center mb-5">
+              <h3 className="text-2xl font-black uppercase tracking-widest text-yellow-500">
+                Select {activeModal === 'killer' ? 'Killer' : 'Victim'}
+              </h3>
+              <button 
+                onClick={closeModal} 
+                className="text-neutral-500 hover:text-white font-bold text-xl px-2 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <input
+              type="text"
+              placeholder="Search operator..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full bg-black/60 border border-neutral-700 p-4 mb-6 text-white text-lg font-medium focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500 placeholder-neutral-600"
+              autoFocus
+            />
+            
+            {/* GRELHA DO MODAL (Caixas Maiores e Mais Espaçosas) */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 overflow-y-auto pr-2 pb-2 custom-scrollbar">
+              {filteredOperators.map(op => (
+                <button 
+                  key={op} 
+                  onClick={() => handleSelectOperator(op)} 
+                  /* Aumentei o padding para p-8 (muito mais espaço interno) e a distância (gap-5) */
+                  className="flex flex-col items-center justify-center gap-5 p-8 bg-black/30 border border-neutral-800 hover:border-yellow-500 hover:bg-black/60 rounded-none transition-all group h-full"
+                >
+                  <UIOperator 
+                    name={op} 
+                    /* Ícones agora com 128x128 pixels nos ecrãs normais (md:w-32 md:h-32) */
+                    className="w-24 h-24 md:w-32 md:h-32 group-hover:scale-110 transition-transform" 
+                    textFallbackClass="text-4xl"
+                  />
+                  <span className="text-sm md:text-base uppercase tracking-wider text-neutral-400 font-bold group-hover:text-yellow-400 text-center">
+                    {op}
+                  </span>
+                </button>
+              ))}
+              
+              {filteredOperators.length === 0 && (
+                <div className="col-span-full py-10 text-center text-neutral-500 font-bold uppercase tracking-widest">
+                  No operators found.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* HEADER */}
+      <div className="text-center mb-10">
+        <h1 className="text-5xl md:text-6xl font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 drop-shadow-md">
+          Kill Feed
+        </h1>
+        <p className="text-neutral-500 uppercase tracking-[0.3em] text-sm mt-2 font-bold">
+          Generator / Broadcast Tool
+        </p>
+      </div>
+      
+      <div className="flex flex-col xl:flex-row gap-8 w-full max-w-7xl px-4 lg:px-8">
         
-        {/* Painel de Controlos */}
-        <div className="bg-neutral-900 p-8 rounded-xl shadow-2xl w-full xl:w-2/5 flex flex-col gap-5 border border-white/5">
-          <h2 className="text-2xl font-semibold mb-3 border-b border-neutral-700 pb-3 text-gray-400">Controlos</h2>
+        {/* CONTROL PANEL */}
+        <div className="bg-neutral-900/80 backdrop-blur-md p-8 shadow-2xl w-full xl:w-2/5 flex flex-col gap-6 border border-white/5 border-t-4 border-t-yellow-500 relative">
+          
+          <h2 className="text-xl font-bold uppercase tracking-widest border-b border-neutral-700/50 pb-3 text-white flex items-center gap-3">
+            <span className="w-2 h-2 bg-yellow-500 inline-block"></span>
+            Operations Panel
+          </h2>
           
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="block text-sm text-gray-400 mb-1.5 font-medium">Nick Atirador</label>
-              <input type="text" value={killerNick} onChange={(e) => setKillerNick(e.target.value)} className="w-full bg-neutral-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-neutral-700" />
+              <label className="block text-xs text-neutral-400 uppercase font-bold tracking-widest mb-2">Killer Nick</label>
+              <input 
+                type="text" 
+                value={killerNick} 
+                onChange={(e) => setKillerNick(e.target.value)} 
+                className="w-full bg-black/40 text-white p-3 border border-neutral-700/50 focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500 transition-colors font-medium shadow-inner" 
+              />
             </div>
             <div className="flex-1">
-              <label className="block text-sm text-gray-400 mb-1.5 font-medium">Nick Vítima</label>
-              <input type="text" value={victimNick} onChange={(e) => setVictimNick(e.target.value)} className="w-full bg-neutral-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 border border-neutral-700" />
+              <label className="block text-xs text-neutral-400 uppercase font-bold tracking-widest mb-2">Victim Nick</label>
+              <input 
+                type="text" 
+                value={victimNick} 
+                onChange={(e) => setVictimNick(e.target.value)} 
+                className="w-full bg-black/40 text-white p-3 border border-neutral-700/50 focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500 transition-colors font-medium shadow-inner" 
+              />
             </div>
           </div>
 
           <div className="flex gap-4">
-            <div className="flex-1">
-              <label className="block text-sm text-gray-400 mb-1.5 font-medium">Operador Atirador</label>
-              <select value={operatorKiller} onChange={handleOperatorKillerChange} className="w-full bg-neutral-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-neutral-700 mb-4">
-                {operatorsList.map(op => <option key={op} value={op}>{op}</option>)}
-              </select>
+            {/* ZONA DOS BOTÕES DE OPERADOR */}
+            <div className="flex-1 flex flex-col gap-4">
               
-              <label className="block text-sm text-gray-400 mb-1.5 font-medium">Operador Vítima</label>
-              <select value={operatorVictim} onChange={handleOperatorVictimChange} className="w-full bg-neutral-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 border border-neutral-700">
-                {operatorsList.map(op => <option key={op} value={op}>{op}</option>)}
-              </select>
+              <div>
+                <label className="block text-xs text-neutral-400 uppercase font-bold tracking-widest mb-2">Killer Op.</label>
+                <button 
+                  onClick={() => setActiveModal('killer')} 
+                  className="w-full bg-black/40 p-2 border border-neutral-700/50 hover:border-yellow-500 transition-colors flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-3">
+                    <img src={`/icons/operators/${operatorKiller.toLowerCase()}.png`} alt={operatorKiller} className="w-10 h-10 object-contain drop-shadow-md" />
+                    <span className="font-bold uppercase tracking-widest text-white group-hover:text-yellow-400 transition-colors">{operatorKiller}</span>
+                  </div>
+                  <span className="text-neutral-500 pr-2 group-hover:text-yellow-500 text-xs">▼</span>
+                </button>
+              </div>
+
+              <div>
+                <label className="block text-xs text-neutral-400 uppercase font-bold tracking-widest mb-2">Victim Op.</label>
+                <button 
+                  onClick={() => setActiveModal('victim')} 
+                  className="w-full bg-black/40 p-2 border border-neutral-700/50 hover:border-yellow-500 transition-colors flex items-center justify-between group"
+                >
+                  <div className="flex items-center gap-3">
+                    <img src={`/icons/operators/${operatorVictim.toLowerCase()}.png`} alt={operatorVictim} className="w-10 h-10 object-contain drop-shadow-md" />
+                    <span className="font-bold uppercase tracking-widest text-white group-hover:text-yellow-400 transition-colors">{operatorVictim}</span>
+                  </div>
+                  <span className="text-neutral-500 pr-2 group-hover:text-yellow-500 text-xs">▼</span>
+                </button>
+              </div>
+
             </div>
+            
+            {/* ZONA DA ARMA */}
             <div className="flex-1">
-              <label className="block text-sm text-gray-400 mb-1.5 font-medium">Arma Utilizada</label>
-              <select value={weapon} onChange={(e) => setWeapon(e.target.value)} className="w-full bg-neutral-800 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-neutral-700">
+              <label className="block text-xs text-neutral-400 uppercase font-bold tracking-widest mb-2">Weapon</label>
+              <select 
+                value={weapon} 
+                onChange={(e) => setWeapon(e.target.value)} 
+                className="w-full bg-black/40 text-white p-4 border border-neutral-700/50 focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500 transition-colors appearance-none font-medium cursor-pointer h-[58px]"
+              >
                 {r6Data[operatorKiller].weapons.map(w => <option key={w} value={w}>{w}</option>)}
               </select>
             </div>
           </div>
 
-          <label className="flex items-center gap-3 cursor-pointer mt-1 p-2 bg-neutral-800 rounded-lg border border-neutral-700">
-            <input type="checkbox" checked={isHeadshot} onChange={(e) => setIsHeadshot(e.target.checked)} className="w-6 h-6 accent-red-500 rounded border-gray-600 focus:ring-red-500 focus:ring-2 bg-neutral-700" />
-            <span className="text-lg font-medium">Eliminação por Headshot?</span>
+          <label className="flex items-center gap-4 cursor-pointer mt-2 p-3 bg-black/20 border border-neutral-800/80 hover:bg-black/40 transition-colors group">
+            <input 
+              type="checkbox" 
+              checked={isHeadshot} 
+              onChange={(e) => setIsHeadshot(e.target.checked)} 
+              className="w-5 h-5 accent-yellow-500 rounded-none bg-neutral-800 border-neutral-600 focus:ring-yellow-500 focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-900 cursor-pointer" 
+            />
+            <span className="text-sm font-bold uppercase tracking-widest text-neutral-300 group-hover:text-yellow-500 transition-colors">
+              Headshot Kill
+            </span>
           </label>
 
-          {/* Seletores de Cor Oficiais */}
-          <div className="border-t border-neutral-700 pt-5 mt-3">
-            <h3 className="text-lg font-semibold mb-3 text-gray-400">Cores da Equipa (Oficiais R6)</h3>
-            <div className="flex flex-col gap-4">
+          {/* TEAM COLORS */}
+          <div className="border-t border-neutral-700/50 pt-5 mt-2">
+            <div className="flex flex-col gap-5">
               <div>
-                <span className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2 block">Cor do Atirador</span>
-                <div className="flex gap-2">
+                <span className="text-xs text-neutral-400 uppercase font-bold tracking-widest mb-3 flex items-center gap-2">
+                  Team Color (Killer)
+                </span>
+                <div className="flex gap-3">
                   {r6HudColors.map((color) => (
-                    <button key={`killer-${color.hex}`} onClick={() => setColorKiller(color.hex)} title={color.name} className={`w-8 h-8 rounded-full transition-transform ${colorKiller === color.hex ? 'scale-125 ring-2 ring-white ring-offset-2 ring-offset-neutral-900' : 'hover:scale-110 opacity-70'}`} style={{ backgroundColor: color.hex }} />
+                    <button 
+                      key={`killer-${color.hex}`} 
+                      onClick={() => setColorKiller(color.hex)} 
+                      title={color.name} 
+                      className={`w-8 h-8 transition-all duration-200 cursor-pointer ${colorKiller === color.hex ? 'scale-125 ring-2 ring-yellow-400 ring-offset-2 ring-offset-neutral-900 shadow-[0_0_10px_rgba(255,255,255,0.2)]' : 'hover:scale-110 opacity-60 hover:opacity-100'}`} 
+                      style={{ backgroundColor: color.hex }} 
+                    />
                   ))}
                 </div>
               </div>
               <div>
-                <span className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2 block">Cor da Vítima</span>
-                <div className="flex gap-2">
+                <span className="text-xs text-neutral-400 uppercase font-bold tracking-widest mb-3 flex items-center gap-2">
+                  Team Color (Victim)
+                </span>
+                <div className="flex gap-3">
                   {r6HudColors.map((color) => (
-                    <button key={`victim-${color.hex}`} onClick={() => setColorVictim(color.hex)} title={color.name} className={`w-8 h-8 rounded-full transition-transform ${colorVictim === color.hex ? 'scale-125 ring-2 ring-white ring-offset-2 ring-offset-neutral-900' : 'hover:scale-110 opacity-70'}`} style={{ backgroundColor: color.hex }} />
+                    <button 
+                      key={`victim-${color.hex}`} 
+                      onClick={() => setColorVictim(color.hex)} 
+                      title={color.name} 
+                      className={`w-8 h-8 transition-all duration-200 cursor-pointer ${colorVictim === color.hex ? 'scale-125 ring-2 ring-yellow-400 ring-offset-2 ring-offset-neutral-900 shadow-[0_0_10px_rgba(255,255,255,0.2)]' : 'hover:scale-110 opacity-60 hover:opacity-100'}`} 
+                      style={{ backgroundColor: color.hex }} 
+                    />
                   ))}
                 </div>
               </div>
@@ -258,12 +402,21 @@ function App() {
           </div>
         </div>
 
-        {/* Lado Direito: Pré-visualização */}
-        <div className="flex flex-col gap-5 w-full xl:w-3/5">
-          <h2 className="text-2xl font-semibold text-gray-300">Pré-visualização (Fundo Transparente)</h2>
+        {/* PREVIEW & EXPORT */}
+        <div className="flex flex-col gap-6 w-full xl:w-3/5">
           
-          <div className="bg-neutral-900 py-10 px-4 rounded-xl flex items-center relative overflow-x-auto h-[300px] border border-white/5" 
-               style={{ backgroundImage: 'repeating-linear-gradient(45deg, #171717 25%, transparent 25%, transparent 75%, #171717 75%, #171717), repeating-linear-gradient(45deg, #171717 25%, #0a0a0a 25%, #0a0a0a 75%, #171717 75%, #171717)', backgroundPosition: '0 0, 10px 10px', backgroundSize: '20px 20px' }}>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold uppercase tracking-widest text-white flex items-center gap-3">
+              <span className="w-2 h-2 bg-yellow-500 inline-block"></span>
+              Live Preview
+            </h2>
+            <span className="text-xs font-bold uppercase tracking-widest text-neutral-500 bg-neutral-900 px-3 py-1 border border-neutral-800">
+              Transparent Background
+            </span>
+          </div>
+          
+          <div className="bg-[#121212] py-16 px-4 flex items-center relative overflow-x-auto h-[350px] border border-white/5 shadow-2xl" 
+               style={{ backgroundImage: 'repeating-linear-gradient(45deg, #171717 25%, transparent 25%, transparent 75%, #171717 75%, #171717), repeating-linear-gradient(45deg, #171717 25%, #101010 25%, #101010 75%, #171717 75%, #171717)', backgroundPosition: '0 0, 10px 10px', backgroundSize: '20px 20px' }}>
             
             <div className="mx-auto w-max">
               
@@ -272,10 +425,10 @@ function App() {
                 style={{ 
                   display: 'flex', 
                   flexDirection: 'row', 
-                  alignItems: 'center', /* Centra a barra de 30px verticalmente dentro dos 44px */
-                  height: '44px',       /* ALTURA DA IMAGEM FINAL EXPORTADA */
+                  alignItems: 'center', 
+                  height: '44px',       
                   width: 'max-content',
-                  backgroundColor: 'transparent', /* Fundo transparente para o recorte dos ícones funcionar */
+                  backgroundColor: 'transparent', 
                   whiteSpace: 'nowrap',
                   fontFamily: 'Scout, sans-serif', 
                   fontWeight: 'normal',
@@ -283,7 +436,7 @@ function App() {
                   letterSpacing: '0.7px' 
                 }}
               >
-                {/* ZONA 1: Ícone do Operador Atirador (Altura e Largura: 44px) */}
+                {/* ZONE 1: Killer Operator Icon */}
                 <div style={{ 
                   width: '44px', 
                   height: '44px', 
@@ -291,7 +444,7 @@ function App() {
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center', 
-                  paddingRight: '0px' /* Dá espaço entre o ícone e a barra colorida */
+                  paddingRight: '0px' 
                 }}>
                   <img 
                     src={`/icons/operators/${operatorKiller.toLowerCase()}.png`} 
@@ -309,19 +462,17 @@ function App() {
                   />
                 </div>
 
-                {/* ========================================= */}
-                {/* INÍCIO DA BARRA CENTRAL (Fina com 30px)     */}
-                {/* ========================================= */}
+                {/* CENTRAL BAR */}
                 <div className="shadow-lg" style={{
                   display: 'flex',
                   flexDirection: 'row',
                   alignItems: 'center',
                   height: '30px', 
                   backgroundColor: 'rgba(33, 33, 33, 0.70)',
-                  overflow: 'hidden' /* Corta os gradientes para não saírem da barra */
+                  overflow: 'hidden' 
                 }}>
                   
-                  {/* ZONA 2: Nick Atirador */}
+                  {/* ZONE 2: Killer Nick */}
                   <div 
                     style={{ 
                       display: 'flex', 
@@ -336,17 +487,13 @@ function App() {
                     </span>
                   </div>
                   
-                  {/* ZONA 3: Centro Escuro (Arma e Headshot Brancos) */}
-                  {/* ZONA 3: Centro Escuro (Arma e Headshot Brancos) */}
+                  {/* ZONE 3: Weapon and Headshot */}
                   <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '24px', padding: '0 1px', height: '100%' }}>
-                    
-                    {/* Substituído pelo novo componente dinâmico */}
                     <WeaponDisplay weapon={weapon} />
-                    
                     {isHeadshot && <HeadshotIcon />}
                   </div>
 
-                  {/* ZONA 4: Nick Vítima */}
+                  {/* ZONE 4: Victim Nick */}
                   <div 
                     style={{ 
                       display: 'flex', 
@@ -362,11 +509,8 @@ function App() {
                   </div>
 
                 </div>
-                {/* ========================================= */}
-                {/* FIM DA BARRA CENTRAL                        */}
-                {/* ========================================= */}
 
-                {/* ZONA 5: Ícone da Vítima (Altura e Largura: 44px) */}
+                {/* ZONE 5: Victim Operator Icon */}
                 <div style={{ 
                   width: '44px', 
                   height: '44px', 
@@ -374,7 +518,7 @@ function App() {
                   display: 'flex', 
                   alignItems: 'center', 
                   justifyContent: 'center', 
-                  paddingLeft: '0px', /* Dá espaço entre a barra e o ícone */
+                  paddingLeft: '0px', 
                   opacity: 0.9
                 }}>
                   <img 
@@ -396,11 +540,13 @@ function App() {
               </div>
 
             </div>
-
           </div>
 
-          <button onClick={handleDownload} className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-6 rounded-xl transition-all flex justify-center items-center gap-3 mt-4 shadow-lg text-lg transform hover:scale-[1.01]">
-            Baixar Kill Feed PNG
+          <button 
+            onClick={handleDownload} 
+            className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase tracking-widest py-5 px-6 transition-all duration-300 flex justify-center items-center gap-3 mt-2 shadow-[0_0_15px_rgba(234,179,8,0.2)] hover:shadow-[0_0_25px_rgba(234,179,8,0.4)] transform hover:-translate-y-0.5"
+          >
+            Export Kill Feed PNG
           </button>
         </div>
 
