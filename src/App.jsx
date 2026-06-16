@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { toPng } from 'html-to-image';
 
 // Dados super limpos, apenas com as armas (sem cores de ícone)
@@ -89,7 +89,7 @@ const r6HudColors = [
   { name: "Roxo", hex: "#7e22ce" }
 ];
 
-const WeaponIcon = () => (
+const WeaponIconFallback = () => (
   <svg width="42" height="14" viewBox="0 0 120 40" style={{ fill: '#FFFFFF' }}>
     <path d="M5,15 h30 l5,-5 h10 l5,5 h40 l15,-5 v20 l-15,5 h-40 l-5,-5 h-10 l-5,5 h-30 Z" />
     <path d="M40,5 v10 M80,5 v10" stroke="#FFFFFF" strokeWidth="2"/>
@@ -97,6 +97,30 @@ const WeaponIcon = () => (
   </svg>
 );
 
+// 2. Criamos o componente Inteligente que tenta carregar o PNG
+const WeaponDisplay = ({ weapon }) => {
+  const [hasError, setHasError] = useState(false);
+
+  // Reinicia o estado de erro sempre que mudas de arma no menu
+  useEffect(() => {
+    setHasError(false);
+  }, [weapon]);
+
+  // Se não encontrar o PNG, mostra o desenho branco (Plano B)
+  if (hasError) {
+    return <WeaponIconFallback />;
+  }
+
+  // Tenta carregar a imagem da pasta. Atenção: o nome do teu ficheiro tem de estar em minúsculas (ex: "supernova.png")
+  return (
+    <img 
+      src={`/icons/weapons/${weapon.toLowerCase()}.png`} 
+      alt={weapon}
+      style={{ height: '28px', width: 'auto', objectFit: 'contain' }}
+      onError={() => setHasError(true)}
+    />
+  );
+};
 const HeadshotIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" style={{ fill: 'none', stroke: '#FFFFFF', strokeWidth: '2.5' }}>
     <circle cx="12" cy="12" r="9.5" />
@@ -265,7 +289,7 @@ function App() {
                   paddingRight: '0px' /* Dá espaço entre o ícone e a barra colorida */
                 }}>
                   <img 
-                    src={`/icons/${operatorKiller.toLowerCase()}.png`} 
+                    src={`/icons/operators/${operatorKiller.toLowerCase()}.png`} 
                     alt={operatorKiller}
                     style={{ width: '100%', height: '100%', objectFit: 'contain'}}
                     onError={(e) => {
@@ -288,7 +312,7 @@ function App() {
                   flexDirection: 'row',
                   alignItems: 'center',
                   height: '30px', 
-                  backgroundColor: 'rgba(15, 15, 15, 0.90)',
+                  backgroundColor: 'rgba(33, 33, 33, 0.70)',
                   overflow: 'hidden' /* Corta os gradientes para não saírem da barra */
                 }}>
                   
@@ -308,8 +332,12 @@ function App() {
                   </div>
                   
                   {/* ZONA 3: Centro Escuro (Arma e Headshot Brancos) */}
+                  {/* ZONA 3: Centro Escuro (Arma e Headshot Brancos) */}
                   <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px', padding: '0 1px', height: '100%' }}>
-                    <WeaponIcon />
+                    
+                    {/* Substituído pelo novo componente dinâmico */}
+                    <WeaponDisplay weapon={weapon} />
+                    
                     {isHeadshot && <HeadshotIcon />}
                   </div>
 
@@ -345,7 +373,7 @@ function App() {
                   opacity: 0.9
                 }}>
                   <img 
-                    src={`/icons/${operatorVictim.toLowerCase()}.png`} 
+                    src={`/icons/operators/${operatorVictim.toLowerCase()}.png`} 
                     alt={operatorVictim}
                     style={{ width: '100%', height: '100%', objectFit: 'contain'}}
                     onError={(e) => {
