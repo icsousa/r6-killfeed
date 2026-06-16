@@ -121,12 +121,17 @@ const WeaponDisplay = ({ weapon }) => {
     />
   );
 };
+
 const HeadshotIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" style={{ fill: 'none', stroke: '#FFFFFF', strokeWidth: '2.5' }}>
-    <circle cx="12" cy="12" r="9.5" />
-    <circle cx="12" cy="12" r="3.5" />
-    <path d="M12,2 v20 M2,12 h20" />
-  </svg>
+  <img 
+    src="/icons/headshot.png" 
+    alt="Headshot"
+    style={{ 
+      height: '28px', 
+      width: 'auto', 
+      objectFit: 'contain',  
+    }} 
+  />
 );
 
 function App() {
@@ -333,7 +338,7 @@ function App() {
                   
                   {/* ZONA 3: Centro Escuro (Arma e Headshot Brancos) */}
                   {/* ZONA 3: Centro Escuro (Arma e Headshot Brancos) */}
-                  <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px', padding: '0 1px', height: '100%' }}>
+                  <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '24px', padding: '0 1px', height: '100%' }}>
                     
                     {/* Substituído pelo novo componente dinâmico */}
                     <WeaponDisplay weapon={weapon} />
