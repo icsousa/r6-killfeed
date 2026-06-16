@@ -264,12 +264,14 @@ function App() {
         </div>
       )}
 
-      {/* HEADER */}
-      <div className="text-center mb-10">
-        <h1 className="text-5xl md:text-6xl font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 drop-shadow-md">
-          Kill Feed
-        </h1>
-        <p className="text-neutral-500 uppercase tracking-[0.3em] text-sm mt-2 font-bold">
+      {/* HEADER ATUALIZADO COM IMAGEM */}
+      <div className="text-center mb-10 flex flex-col items-center">
+        <img 
+          src="/logo.png" 
+          alt="Kill Feed Logo" 
+          className="h-20 md:h-24 object-contain drop-shadow-lg" 
+        />
+        <p className="text-neutral-500 uppercase tracking-[0.3em] text-sm mt-4 font-bold">
           Generator
         </p>
       </div>
