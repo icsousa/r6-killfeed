@@ -12,7 +12,7 @@ const r6Data = {
   "Buck": { weapons: ["C8-SFW", "CAMRS", "Mk1 9mm", "Gonne-6"] },
   "Capitão": { weapons: ["PARA-308", "M249", "PRB92", "Gonne-6"] },
   "Deimos": { weapons: ["AK-74M", "M590A1", ".44 Vendetta"] },
-  "Dokkaebi": { weapons: ["Mk 14 EBR", "BOSG.12.2", "SMG-12", "C75 Auto", "Gonne-6"] },
+  "Dokkaebi": { weapons: ["Mk 14 EBR", "BOSG.12.2", "XK23", "SMG-12", "C75 Auto", "Gonne-6"] },
   "Finka": { weapons: ["Spear .308", "6P41", "SASG-12", "PMM", "GSh-18", "Gonne-6"] },
   "Flores": { weapons: ["AR33", "SR-25", "GSh-18"] },
   "Fuze": { weapons: ["AK-12", "6P41", "Ballistic Shield", "PMM", "GSh-18"] },
@@ -27,25 +27,30 @@ const r6Data = {
   "Lion": { weapons: ["V308", "417", "SG-CQB", "LFP586", "P9", "Gonne-6"] },
   "Maverick": { weapons: ["M4", "AR-15.50", "1911 TACOPS"] },
   "Montagne": { weapons: ["Le Roc Shield", "P9", "LFP586"] },
-  "Nomad": { weapons: ["AK-74M", "ARX200", "PRB92"] },
+  "Nomad": { weapons: ["AK-74M", "ARX200", "PRB92", ".44 Mag Semi-Auto"] },
   "Nøkk": { weapons: ["FMG-9", "SIX12 SD", "5.7 USG", "D-50"] },
   "Osa": { weapons: ["556XI", "PDW9", "PMM"] },
   "Ram": { weapons: ["R4-C", "LMG-E", "Mk1 9mm", "ITA12S"] },
+  "Rauora": { weapons: ["417", "M249", "Reaper MK2", "GSh-18"] },
   "Sens": { weapons: ["POF-9", "417", "SDP 9mm", "Gonne-6"] },
   "Sledge": { weapons: ["L85A2", "M590A1", "P226 Mk 25"] },
+  "Solid Snake": { weapons: ["F2", "PMR90A2", "TACIT .45"] },
+  "Striker": { weapons: ["M4", "M249", "5.7 USG", "ITA12S"] },
   "Thatcher": { weapons: ["AR33", "L85A2", "M590A1", "P226 Mk 25"] },
   "Thermite": { weapons: ["556XI", "M1014", "5.7 USG", "M45 MEUSOC"] },
   "Twitch": { weapons: ["F2", "417", "SG-CQB", "P9", "LFP586"] },
   "Ying": { weapons: ["T-95 LSW", "SIX12", "Q-929"] },
   "Zero": { weapons: ["SC3000K", "MP7", "5.7 USG", "Gonne-6"] },
   "Zofia": { weapons: ["LMG-E", "M762", "RG15"] },
+
   "Alibi": { weapons: ["Mx4 Storm", "ACS12", "Keratos .357", "Bailiff 410"] },
   "Aruni": { weapons: ["P10 RONI", "Mk 14 EBR", "PRB92"] },
   "Azami": { weapons: ["9x19VSN", "ACS12", "D-50"] },
-  "Bandit": { weapons: ["MP7", "M870", "P12"] },
+  "Bandit": { weapons: ["MP7", "M870", "P12", "Keratos .357"] },
   "Castle": { weapons: ["UMP45", "M1014", "5.7 USG", "Super Shorty"] },
   "Caveira": { weapons: ["M12", "SPAS-15", "Luison"] },
   "Clash": { weapons: ["CCE Shield", "SPSMG9", "P-10C"] },
+  "Denari": { weapons: ["Scorpion EVO 3 A1", "FMG-9", "Glaive-12"] },
   "Doc": { weapons: ["MP5", "P90", "SG-CQB", "P9", "LFP586", "Bailiff 410"] },
   "Echo": { weapons: ["MP5SD", "SuperNova", "P229", "Bearing 9"] },
   "Ela": { weapons: ["Scorpion EVO 3 A1", "FO-12", "RG15"] },
@@ -64,6 +69,8 @@ const r6Data = {
   "Oryx": { weapons: ["T-5 SMG", "SPAS-12", "Bailiff 410", "USP40"] },
   "Pulse": { weapons: ["UMP45", "M1014", "M45 MEUSOC", "5.7 USG"] },
   "Rook": { weapons: ["MP5", "P90", "SG-CQB", "P9", "LFP586"] },
+  "Sentry": { weapons: ["Commando 9", "M870", "C75 Auto", "Super Shorty"] },
+  "Skopós": { weapons: ["PCX-33", "P229"] },
   "Smoke": { weapons: ["FMG-9", "M590A1", "P226 Mk 25", "SMG-11"] },
   "Solis": { weapons: ["P90", "ITA12L", "SMG-11"] },
   "Tachanka": { weapons: ["DP27", "9x19VSN", "PMM", "GSh-18", "Bearing 9"] },
@@ -111,7 +118,7 @@ const WeaponDisplay = ({ weapon }) => {
     <img 
       src={`/icons/weapons/${weapon.toLowerCase()}.png`} 
       alt={weapon}
-      style={{ height: '28px', width: 'auto', objectFit: 'contain' }}
+      style={{ height: '28px', width: 'auto', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
       onError={() => setHasError(true)}
     />
   );
@@ -131,8 +138,8 @@ const HeadshotIcon = () => (
 
 function App() {
   
-  const [operatorKiller, setOperatorKiller] = useState(operatorsList[0]);
-  const [operatorVictim, setOperatorVictim] = useState(operatorsList[1]); 
+  const [operatorKiller, setOperatorKiller] = useState(operatorsList[24]);
+  const [operatorVictim, setOperatorVictim] = useState(operatorsList[38]); 
   
   const [weapon, setWeapon] = useState(r6Data[operatorsList[0]].weapons[0]);
   const [isHeadshot, setIsHeadshot] = useState(true);
