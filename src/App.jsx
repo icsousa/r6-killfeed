@@ -139,7 +139,7 @@ const HeadshotIcon = () => (
 function App() {
   
   const [operatorKiller, setOperatorKiller] = useState(operatorsList[24]);
-  const [operatorVictim, setOperatorVictim] = useState(operatorsList[38]); 
+  const [operatorVictim, setOperatorVictim] = useState(operatorsList[41]); 
   
   const [weapon, setWeapon] = useState(r6Data[operatorsList[0]].weapons[0]);
   const [isHeadshot, setIsHeadshot] = useState(true);
