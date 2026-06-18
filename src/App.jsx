@@ -141,9 +141,9 @@ function App() {
   const [operatorKiller, setOperatorKiller] = useState(operatorsList[24]);
   const [operatorVictim, setOperatorVictim] = useState(operatorsList[41]); 
   
-  const [weapon, setWeapon] = useState(r6Data[operatorsList[0]].weapons[0]);
+  const [weapon, setWeapon] = useState(r6Data[operatorsList[24]].weapons[0]);
   const [isHeadshot, setIsHeadshot] = useState(true);
-  const [killerNick, setKillerNick] = useState("ivoocks"); 
+  const [killerNick, setKillerNick] = useState("iibu_"); 
   const [victimNick, setVictimNick] = useState("Spoit.SR");
 
   const [colorKiller, setColorKiller] = useState(r6HudColors[0].hex); 
