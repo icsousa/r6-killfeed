@@ -1,4 +1,4 @@
-# 🎯 R6 Kill Feed Generator
+# <img src="https://github.com/icsousa/r6-killfeed/blob/main/public/logo.png" height="28px" />R6 Kill Feed Generator
 
 [![Live Demo](https://img.shields.io/badge/demo-online-yellow.svg)](https://r6-killfeed.vercel.app/)
 [![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)]()
