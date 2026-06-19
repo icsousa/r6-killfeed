@@ -1,17 +1,69 @@
-# React + Vite
+# 🎯 R6 Kill Feed Generator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![Live Demo](https://img.shields.io/badge/demo-online-yellow.svg)](https://r6-killfeed.vercel.app/)
+[![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)]()
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white)]()
 
-Currently, two official plugins are available:
+A sleek, interactive web application built to generate custom **Rainbow Six Siege** kill feed graphics. Perfect for content creators, thumbnail designers, and tournament organizers who need high-quality, transparent kill feed overlays.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ✨ Features
 
-## React Compiler
+* **Live Tactical Preview:** Instantly see your kill feed changes in a modern, R6-inspired UI.
+* **Searchable Operator Roster:** Quickly find the exact Killer or Victim using the built-in modal grid with custom operator icons.
+* **Dynamic Loadouts:** Weapon options automatically update based on the selected Killer.
+* **Headshot Toggle:** Easily add or remove the iconic R6 headshot indicator.
+* **Custom Team Colors:** Choose from authentic HUD colors (Blue, Orange, Red, Cyan, Yellow, Green, Purple) to match your scenario.
+* **Transparent PNG Export:** Download your creation with a single click as a high-resolution, transparent image ready for video editing or stream overlays.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Built With
 
-## Expanding the ESLint configuration
+* **[React](https://reactjs.org/)** - UI Framework
+* **[Vite](https://vitejs.dev/)** - Build Tool & Development Server
+* **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first styling
+* **[html-to-image](https://github.com/bubkoo/html-to-image)** - Core engine for PNG generation
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-# r6-killfeed
+## 🚀 Getting Started
+
+To run this project locally on your machine, follow these steps:
+
+### Prerequisites
+Make sure you have [Node.js](https://nodejs.org/) installed on your system.
+
+### Installation
+
+1. Clone the repository:
+```bash
+   git clone [https://github.com/icsousa/r6-killfeed.git](https://github.com/icsousa/r6-killfeed.git)
+   ```
+2. Navigate to the project directory:
+```bash
+   cd r6-killfeed
+   ```
+3. Install the dependencies:
+```bash
+   npm install
+   ```
+4. Start the development server:
+```bash
+   npm run dev
+   ```
+5. Open your browser and visit `http://localhost:5173`.
+
+## 📂 Project Structure
+
+* `/public/icons/operators/` - Contains all `.png` operator icons.
+* `/public/icons/weapons/` - Contains all `.png` weapon silhouettes.
+* `src/App.jsx` - Main application logic, state management, and UI layout.
+* `src/index.css` - Global styles, custom scrollbars, and Tailwind directives.
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! 
+Feel free to check the [issues page](https://github.com/icsousa/r6-killfeed/issues) if you want to contribute.
+
+## 📄 License
+
+This project is open-source and available under the [MIT License](LICENSE).
+
+---
+*Disclaimer: This project is not affiliated with, maintained, authorized, endorsed, or sponsored by Ubisoft. Rainbow Six Siege and all related properties are trademarks or registered trademarks of Ubisoft.*
