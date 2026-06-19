@@ -1,5 +1,5 @@
 import './index.css'
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { toPng } from 'html-to-image';
 
 const r6Data = {
@@ -7,7 +7,7 @@ const r6Data = {
   "Amaru": { weapons: ["G8A1", "Supernova", "ITA12S", "SMG-11"] },
   "Ash": { weapons: ["R4-C", "G36C", "5.7 USG", "5.7 USG Silenced", "M45 MEUSOC"] },
   "Blackbeard": { weapons: ["Mk17 CQB", "SR-25", "D-50"] },
-  "Blitz": { weapons: ["G52-Tactical Shield", "P12"] },
+  "Blitz": { weapons: ["P12"] },
   "Brava": { weapons: ["PARA-308", "CAMRS", "USP40", "Super Shorty"] },
   "Buck": { weapons: ["C8-SFW", "CAMRS", "Mk1 9mm"] },
   "Capitão": { weapons: ["PARA-308", "M249", "PRB92"] },
@@ -15,7 +15,7 @@ const r6Data = {
   "Dokkaebi": { weapons: ["Mk 14 EBR", "BOSG.12.2", "XK23", "SMG-12", "C75 Auto"] },
   "Finka": { weapons: ["Spear .308", "6P41", "SASG-12", "PMM", "GSh-18"] },
   "Flores": { weapons: ["AR33", "SR-25", "GSh-18"] },
-  "Fuze": { weapons: ["AK-12", "6P41", "Ballistic Shield", "PMM", "GSh-18"] },
+  "Fuze": { weapons: ["AK-12", "6P41", "PMM", "GSh-18"] },
   "Glaz": { weapons: ["OTs-03", "PMM", "GSh-18", "Bearing 9"] },
   "Gridlock": { weapons: ["F90", "M249 SAW", "Super Shorty", "SDP 9mm"] },
   "Grim": { weapons: ["552 Commando", "SG-CQB", "P229", "Bailiff 410"] },
@@ -26,7 +26,7 @@ const r6Data = {
   "Kali": { weapons: ["CSRX 300", "SPSMG9", "C75 Auto", "P226 Mk 25"] },
   "Lion": { weapons: ["V308", "417", "SG-CQB", "LFP586", "P9"] },
   "Maverick": { weapons: ["M4", "AR-15.50", "1911 TACOPS"] },
-  "Montagne": { weapons: ["Le Roc Shield", "P9", "LFP586"] },
+  "Montagne": { weapons: ["P9", "LFP586"] },
   "Nomad": { weapons: ["AK-74M", "ARX200", "PRB92", ".44 Mag Semi-Auto"] },
   "Nøkk": { weapons: ["FMG-9", "SIX12 SD", "5.7 USG", "5.7 USG Silenced", "D-50"] },
   "Osa": { weapons: ["556XI", "PDW9", "PMM"] },
@@ -49,7 +49,7 @@ const r6Data = {
   "Bandit": { weapons: ["MP7", "M870", "P12", "Keratos .357"] },
   "Castle": { weapons: ["UMP45", "M1014", "5.7 USG", "5.7 USG Silenced", "Super Shorty"] },
   "Caveira": { weapons: ["M12", "SPAS-15", "Luison"] },
-  "Clash": { weapons: ["CCE Shield", "SPSMG9", "P-10C"] },
+  "Clash": { weapons: ["SPSMG9", "P-10C"] },
   "Denari": { weapons: ["Scorpion EVO 3 A1", "FMG-9", "Glaive-12", "P226 Mk 25"] },
   "Doc": { weapons: ["MP5", "P90", "SG-CQB", "P9", "LFP586", "Bailiff 410"] },
   "Echo": { weapons: ["MP5SD", "SuperNova", "P229", "Bearing 9"] },
@@ -83,6 +83,9 @@ const r6Data = {
   "Warden": { weapons: ["MPX", "M590A1", "P-10C", "SMG-12"] }
 };
 
+const allUniqueWeapons = Array.from(new Set(Object.values(r6Data).flatMap(op => op.weapons))).sort();
+r6Data["Unknown"] = { weapons: allUniqueWeapons };
+
 const operatorsList = Object.keys(r6Data);
 
 const r6HudColors = [
@@ -98,7 +101,6 @@ const r6HudColors = [
 const WeaponDisplay = ({ weapon, operator }) => {
   let imageName = weapon.toLowerCase();
 
-  // Verifica se o operador está na posição 6 (Buck) e se a arma está na posição 1 (CAMRS)
   if (operator === operatorsList[6] && weapon === r6Data[operatorsList[6]].weapons[1]) {
     imageName = "camrsbuck";
   }
@@ -119,11 +121,7 @@ const HeadshotIcon = () => (
   <img 
     src="/icons/headshot.png" 
     alt="Headshot"
-    style={{ 
-      height: '28px', 
-      width: 'auto', 
-      objectFit: 'contain',  
-    }} 
+    style={{ height: '28px', width: 'auto', objectFit: 'contain' }} 
   />
 );
 
@@ -147,6 +145,10 @@ function App() {
 
   const filteredOperators = operatorsList.filter(op => 
     op.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredWeapons = r6Data[operatorKiller].weapons.filter(w => 
+    w.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSelectOperator = (op) => {
@@ -195,9 +197,7 @@ function App() {
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-200 flex flex-col items-center py-12 font-sans selection:bg-yellow-500 selection:text-black relative">
       
-      {/* ========================================= */}
-      {/* MODAL DE SELEÇÃO DE OPERADORES              */}
-      {/* ========================================= */}
+      {/* MODAL MULTIUSOS (OPERADORES & ARMAS) */}
       {activeModal && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-all"
@@ -209,7 +209,7 @@ function App() {
           >
             <div className="flex justify-between items-center mb-5">
               <h3 className="text-2xl font-black uppercase tracking-widest text-yellow-500">
-                Select {activeModal === 'killer' ? 'Killer' : 'Victim'}
+                Select {activeModal === 'killer' ? 'Killer' : activeModal === 'victim' ? 'Victim' : 'Weapon'}
               </h3>
               <button 
                 onClick={closeModal} 
@@ -221,7 +221,7 @@ function App() {
             
             <input
               type="text"
-              placeholder="Search operator..."
+              placeholder={`Search ${activeModal === 'weapon' ? 'weapon' : 'operator'}...`}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full bg-black/60 border border-neutral-700 p-4 mb-6 text-white text-lg font-medium focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500 placeholder-neutral-600"
@@ -229,7 +229,9 @@ function App() {
             />
             
             <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-4 overflow-y-auto pr-2 pb-2 custom-scrollbar">
-              {filteredOperators.map(op => (
+              
+              {/* RENDERIZA OPERADORES */}
+              {activeModal !== 'weapon' && filteredOperators.map(op => (
                 <button 
                   key={op} 
                   onClick={() => handleSelectOperator(op)} 
@@ -249,12 +251,33 @@ function App() {
                   </span>
                 </button>
               ))}
+
+              {/* RENDERIZA ARMAS */}
+              {activeModal === 'weapon' && filteredWeapons.map(w => (
+                <button 
+                  key={w} 
+                  onClick={() => { setWeapon(w); closeModal(); }} 
+                  className="flex flex-col items-center justify-center gap-3 p-3 bg-black/30 border border-neutral-800 hover:border-yellow-500/50 hover:bg-black/60 rounded-none transition-all group h-24"
+                >
+                  <WeaponDisplay weapon={w} operator={operatorKiller} />
+                  <span className="text-[10px] uppercase tracking-wider text-neutral-400 font-bold group-hover:text-yellow-400 text-center">
+                    {w}
+                  </span>
+                </button>
+              ))}
               
-              {filteredOperators.length === 0 && (
+              {activeModal !== 'weapon' && filteredOperators.length === 0 && (
                 <div className="col-span-full py-10 text-center text-neutral-500 font-bold uppercase tracking-widest">
                   No operators found.
                 </div>
               )}
+
+              {activeModal === 'weapon' && filteredWeapons.length === 0 && (
+                <div className="col-span-full py-10 text-center text-neutral-500 font-bold uppercase tracking-widest">
+                  No weapons found.
+                </div>
+              )}
+
             </div>
           </div>
         </div>
@@ -339,13 +362,18 @@ function App() {
             
             <div className="flex-1">
               <label className="block text-xs text-neutral-400 uppercase font-bold tracking-widest mb-2">Weapon</label>
-              <select 
-                value={weapon} 
-                onChange={(e) => setWeapon(e.target.value)} 
-                className="w-full bg-black/40 text-white p-4 border border-neutral-700/50 focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500 transition-colors appearance-none font-medium cursor-pointer h-[58px]"
+              <button 
+                onClick={() => setActiveModal('weapon')} 
+                className="w-full bg-black/40 p-2 border border-neutral-700/50 hover:border-yellow-500 transition-colors flex items-center justify-between group h-[58px]"
               >
-                {r6Data[operatorKiller].weapons.map(w => <option key={w} value={w}>{w}</option>)}
-              </select>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 flex justify-center">
+                    <WeaponDisplay weapon={weapon} operator={operatorKiller} />
+                  </div>
+                  <span className="font-bold uppercase tracking-widest text-white group-hover:text-yellow-400 transition-colors text-left">{weapon}</span>
+                </div>
+                <span className="text-neutral-500 pr-2 group-hover:text-yellow-500 text-xs">▼</span>
+              </button>
             </div>
           </div>
 
