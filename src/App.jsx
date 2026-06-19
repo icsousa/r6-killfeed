@@ -95,31 +95,22 @@ const r6HudColors = [
   { name: "Purple", hex: "#7e22ce" }
 ];
 
-const WeaponIconFallback = () => (
-  <svg width="42" height="14" viewBox="0 0 120 40" style={{ fill: '#FFFFFF' }}>
-    <path d="M5,15 h30 l5,-5 h10 l5,5 h40 l15,-5 v20 l-15,5 h-40 l-5,-5 h-10 l-5,5 h-30 Z" />
-    <path d="M40,5 v10 M80,5 v10" stroke="#FFFFFF" strokeWidth="2"/>
-    <rect x="100" y="5" width="20" height="30" fill="#FFFFFF"/>
-  </svg>
-);
+const WeaponDisplay = ({ weapon, operator }) => {
+  let imageName = weapon.toLowerCase();
 
-const WeaponDisplay = ({ weapon }) => {
-  const [hasError, setHasError] = useState(false);
-
-  useEffect(() => {
-    setHasError(false);
-  }, [weapon]);
-
-  if (hasError) {
-    return <WeaponIconFallback />;
+  // Verifica se o operador está na posição 6 (Buck) e se a arma está na posição 1 (CAMRS)
+  if (operator === operatorsList[6] && weapon === r6Data[operatorsList[6]].weapons[1]) {
+    imageName = "camrsbuck";
   }
 
   return (
     <img 
-      src={`/icons/weapons/${weapon.toLowerCase()}.png`} 
+      src={`/icons/weapons/${imageName}.png`} 
       alt={weapon}
       style={{ height: '28px', width: 'auto', objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
-      onError={() => setHasError(true)}
+      onError={(e) => {
+        e.target.style.display = 'none';
+      }}
     />
   );
 };
@@ -149,13 +140,11 @@ function App() {
   const [colorKiller, setColorKiller] = useState(r6HudColors[0].hex); 
   const [colorVictim, setColorVictim] = useState(r6HudColors[2].hex); 
 
-  // Estado para controlar o Modal de Operadores
-  const [activeModal, setActiveModal] = useState(null); // 'killer' | 'victim' | null
+  const [activeModal, setActiveModal] = useState(null); 
   const [searchQuery, setSearchQuery] = useState("");
 
   const killFeedRef = useRef(null);
 
-  // Filtra os operadores baseado na pesquisa
   const filteredOperators = operatorsList.filter(op => 
     op.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -204,7 +193,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-200 flex flex-col items-center py-12 font-sans selection:bg-yellow-500 selection:text-black">
+    <div className="min-h-screen bg-neutral-950 text-neutral-200 flex flex-col items-center py-12 font-sans selection:bg-yellow-500 selection:text-black relative">
       
       {/* ========================================= */}
       {/* MODAL DE SELEÇÃO DE OPERADORES              */}
@@ -216,7 +205,7 @@ function App() {
         >
           <div 
             className="bg-neutral-900 border-2 border-neutral-700/80 p-6 w-full max-w-3xl max-h-[85vh] flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.8)]"
-            onClick={e => e.stopPropagation()} // Impede que o clique dentro da janela a feche
+            onClick={e => e.stopPropagation()} 
           >
             <div className="flex justify-between items-center mb-5">
               <h3 className="text-2xl font-black uppercase tracking-widest text-yellow-500">
@@ -239,7 +228,7 @@ function App() {
               autoFocus
             />
             
-            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-4 overflow-y-auto pr-2 pb-2">
+            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-4 overflow-y-auto pr-2 pb-2 custom-scrollbar">
               {filteredOperators.map(op => (
                 <button 
                   key={op} 
@@ -271,7 +260,7 @@ function App() {
         </div>
       )}
 
-      {/* HEADER ATUALIZADO COM IMAGEM */}
+      {/* HEADER */}
       <div className="text-center mb-10 flex flex-col items-center">
         <img 
           src="/logo.png" 
@@ -283,7 +272,8 @@ function App() {
         </p>
       </div>
       
-      <div className="flex flex-col xl:flex-row gap-8 w-full max-w-7xl px-4 lg:px-8">
+      {/* MAIN CONTENT */}
+      <div className="flex flex-col xl:flex-row gap-8 w-full max-w-7xl px-4 lg:px-8 flex-1">
         
         {/* CONTROL PANEL */}
         <div className="bg-neutral-900/80 backdrop-blur-md p-8 shadow-2xl w-full xl:w-2/5 flex flex-col gap-6 border border-white/5 border-t-4 border-t-yellow-500 relative">
@@ -315,7 +305,6 @@ function App() {
           </div>
 
           <div className="flex gap-4">
-            {/* ZONA DOS BOTÕES DE OPERADOR */}
             <div className="flex-1 flex flex-col gap-4">
               
               <div>
@@ -348,7 +337,6 @@ function App() {
 
             </div>
             
-            {/* ZONA DA ARMA */}
             <div className="flex-1">
               <label className="block text-xs text-neutral-400 uppercase font-bold tracking-widest mb-2">Weapon</label>
               <select 
@@ -425,7 +413,7 @@ function App() {
             </span>
           </div>
           
-          <div className="bg-[#121212] py-16 px-4 flex items-center relative overflow-x-auto h-[350px] border border-white/5 shadow-2xl" 
+          <div className="bg-[#121212] py-16 px-4 flex items-center relative overflow-x-auto h-[350px] border border-white/5 shadow-2xl custom-scrollbar" 
                style={{ backgroundImage: 'repeating-linear-gradient(45deg, #171717 25%, transparent 25%, transparent 75%, #171717 75%, #171717), repeating-linear-gradient(45deg, #171717 25%, #101010 25%, #101010 75%, #171717 75%, #171717)', backgroundPosition: '0 0, 10px 10px', backgroundSize: '20px 20px' }}>
             
             <div className="mx-auto w-max">
@@ -446,7 +434,6 @@ function App() {
                   letterSpacing: '0.7px' 
                 }}
               >
-                {/* ZONE 1: Killer Operator Icon */}
                 <div style={{ 
                   width: '44px', 
                   height: '44px', 
@@ -472,7 +459,6 @@ function App() {
                   />
                 </div>
 
-                {/* CENTRAL BAR */}
                 <div className="shadow-lg" style={{
                   display: 'flex',
                   flexDirection: 'row',
@@ -482,7 +468,6 @@ function App() {
                   overflow: 'hidden' 
                 }}>
                   
-                  {/* ZONE 2: Killer Nick */}
                   <div 
                     style={{ 
                       display: 'flex', 
@@ -497,13 +482,11 @@ function App() {
                     </span>
                   </div>
                   
-                  {/* ZONE 3: Weapon and Headshot */}
                   <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '24px', padding: '0 1px', height: '100%' }}>
-                    <WeaponDisplay weapon={weapon} />
+                    <WeaponDisplay weapon={weapon} operator={operatorKiller} />
                     {isHeadshot && <HeadshotIcon />}
                   </div>
 
-                  {/* ZONE 4: Victim Nick */}
                   <div 
                     style={{ 
                       display: 'flex', 
@@ -520,7 +503,6 @@ function App() {
 
                 </div>
 
-                {/* ZONE 5: Victim Operator Icon */}
                 <div style={{ 
                   width: '44px', 
                   height: '44px', 
@@ -561,6 +543,41 @@ function App() {
         </div>
 
       </div>
+
+      <footer className="w-full mt-24 mb-6 flex justify-center items-center gap-10">
+        <a 
+          href="https://www.twitch.tv/iibu_" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-neutral-500 hover:text-yellow-500 hover:scale-125 transition-all duration-300"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8">
+            <path d="M2.149 0l-1.612 4.119v16.836h5.731v3.045h3.224l3.045-3.045h4.657l6.806-6.806v-14.149h-21.851zm19.344 13.134l-4.119 4.119h-5.373l-3.045 3.045v-3.045h-4.836v-15.045h17.373v10.896zm-5.373-7.522v5.373h-2.149v-5.373h2.149zm-5.731 0v5.373h-2.149v-5.373h2.149z"/>
+          </svg>
+        </a>
+        <a 
+          href="https://github.com/icsousa/r6-killfeed" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-neutral-500 hover:text-yellow-500 hover:scale-125 transition-all duration-300"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          </svg>
+        </a>
+        <a 
+          href="https://www.youtube.com/@iibu_clips" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-neutral-500 hover:text-yellow-500 hover:scale-125 transition-all duration-300"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+        </a>
+
+      </footer>
+
     </div>
   )
 }

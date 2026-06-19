@@ -4,3 +4,32 @@
   font-family: 'Scout';
   src: url('/Scout-Regular.otf') format('truetype');
 }
+
+html {
+  color-scheme: dark;
+}
+
+/* Custom Scrollbar - Amarelo Moderno */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #171717; 
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #eab308; 
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ca8a04; 
+}
+
+/* FIX: Pinta o canto (onde as barras se cruzam) com a cor de fundo escuro */
+::-webkit-scrollbar-corner {
+  background: #121212; 
+}
